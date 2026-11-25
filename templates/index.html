@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Detector & Probability Analyzer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-glow glow-1"></div>
+    <div class="background-glow glow-2"></div>
+
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.5h-2v-2h2zm0-4h-2V7h2z"/>
+                        <circle cx="12" cy="12" r="3" stroke-dasharray="2 2"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="brand-title">SpectraForensic</span>
+                    <span class="brand-badge">AI Image Detector</span>
+                </div>
+            </div>
+            <div class="nav-links">
+                <span class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    Engine v2.4 Active
+                </span>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Hero Header -->
+        <section class="hero-section">
+            <h1 class="hero-title">
+                Detect <span class="gradient-text">AI-Generated Images</span> with Deep Forensics
+            </h1>
+            <p class="hero-subtitle">
+                Upload any image to analyze frequency-domain artifacts (2D FFT), sensor PRNU noise residuals,
+                Error Level Analysis (ELA), and metadata signatures to estimate exact AI generation probability.
+            </p>
+        </section>
+
+        <!-- Upload & Quick Sample Box -->
+        <section class="upload-section">
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp, image/bmp" hidden>
+                <div class="drop-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <h3>Drag & Drop your image here</h3>
+                <p>or <button type="button" class="btn-browse" onclick="document.getElementById('fileInput').click()">Browse Files</button></p>
+                <span class="upload-hint">Supports PNG, JPG, JPEG, WEBP, BMP (up to 32MB)</span>
+            </div>
+
+            <!-- Quick Test Samples -->
+            <div class="quick-samples">
+                <span class="samples-label">Quick Test Samples:</span>
+                <button type="button" class="sample-btn" data-sample="sample_real">
+                    <span class="icon">📷</span> Real Camera Photo
+                </button>
+                <button type="button" class="sample-btn" data-sample="sample_ai">
+                    <span class="icon">🤖</span> AI Diffusion Sample
+                </button>
+                <button type="button" class="sample-btn" data-sample="sample_midjourney">
+                    <span class="icon">🎨</span> Midjourney Portrait
+                </button>
+            </div>
+        </section>
+
+        <!-- Loader -->
+        <div class="loader-container" id="loader" style="display: none;">
+            <div class="scanner-spinner"></div>
+            <h3 class="loader-title">Analyzing Image Forensics...</h3>
+            <p class="loader-step" id="loaderStep">Running 2D FFT Frequency Decomposition...</p>
+        </div>
+
+        <!-- Analysis Results Dashboard -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            
+            <!-- Primary Probability Card -->
+            <div class="card hero-result-card">
+                <div class="hero-result-grid">
+                    <!-- Gauge & Main Probability -->
+                    <div class="gauge-col">
+                        <div class="prob-circle" id="probCircle">
+                            <svg viewBox="0 0 120 120" class="circular-chart">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                <path class="circle" id="gaugePath" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            </svg>
+                            <div class="prob-number-container">
+                                <span class="prob-value" id="aiProbValue">0%</span>
+                                <span class="prob-sublabel">AI Probability</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Verdict & Description -->
+                    <div class="verdict-col">
+                        <div class="verdict-header">
+                            <span class="badge" id="verdictBadge">Likely AI-Generated</span>
+                            <span class="confidence-tag" id="confidenceTag">Confidence: High</span>
+                        </div>
+                        <h2 class="verdict-title" id="verdictTitle">Analyzing...</h2>
+                        <p class="verdict-desc" id="verdictDesc">Description goes here.</p>
+                        
+                        <!-- Dual Probability Comparison Bar -->
+                        <div class="dual-bar-container">
+                            <div class="bar-labels">
+                                <span class="label-ai">🤖 AI-Generated: <strong id="barAiVal">0%</strong></span>
+                                <span class="label-real">📷 Real / Authentic: <strong id="barRealVal">0%</strong></span>
+                            </div>
+                            <div class="dual-progress">
+                                <div class="progress-ai" id="barAiProgress" style="width: 50%;"></div>
+                                <div class="progress-real" id="barRealProgress" style="width: 50%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Meta Info Row -->
+                        <div class="file-meta-row">
+                            <span id="metaFilename">file.jpg</span>
+                            <span class="separator">•</span>
+                            <span id="metaDimensions">1024 x 1024</span>
+                            <span class="separator">•</span>
+                            <span id="metaSize">1.2 MB</span>
+                            <span class="separator">•</span>
+                            <span id="metaTime">0.42s scan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Inspection & Heatmap Tabs -->
+            <div class="card visualizer-card">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">🔬 Visual Forensic Inspection</h3>
+                        <p class="card-subtitle">Examine spectral power distribution, sensor noise residuals, and compression error levels.</p>
+                    </div>
+                    <div class="view-tabs">
+                        <button type="button" class="tab-btn active" data-tab="preview">Original</button>
+                        <button type="button" class="tab-btn" data-tab="fft">2D FFT Spectrum</button>
+                        <button type="button" class="tab-btn" data-tab="ela">Error Level (ELA)</button>
+                        <button type="button" class="tab-btn" data-tab="noise">Noise Residual</button>
+                        <button type="button" class="tab-btn" data-tab="chroma">Chromatic Map</button>
+                    </div>
+                </div>
+
+                <div class="visualizer-content">
+                    <div class="image-display-frame">
+                        <img id="activeVisualImage" src="" alt="Forensic Visualization">
+                    </div>
+                    <div class="visualizer-explanation" id="visualizerExplanation">
+                        Select a tab above to inspect distinct image forensics layers.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Indicators Grid -->
+            <div class="indicators-section">
+                <h3 class="section-title">Forensic Indicators Breakdown</h3>
+                <div class="indicators-grid" id="indicatorsGrid">
+                    <!-- Cards will be populated by app.js -->
+                </div>
+            </div>
+
+            <!-- Export / Action Bar -->
+            <div class="action-bar">
+                <button type="button" class="btn-action secondary" onclick="window.print()">
+                    🖨️ Print / Save PDF
+                </button>
+                <button type="button" class="btn-action secondary" id="btnDownloadJson">
+                    📥 Download JSON Report
+                </button>
+                <button type="button" class="btn-action primary" onclick="resetToUpload()">
+                    🔄 Analyze Another Image
+                </button>
+            </div>
+
+        </section>
+
+        <!-- Educational / How It Works Section -->
+        <section class="info-section" id="how-it-works">
+            <h2 class="section-title text-center">How AI Detection Forensics Works</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">⚡</div>
+                    <h4>2D Fast Fourier Transform (FFT)</h4>
+                    <p>
+                        Diffusion models (Stable Diffusion, Midjourney) and GANs use upsampling transposed convolutions
+                        and latent VAE decoders. These leave periodic checkerboard artifacts and abnormal high-frequency
+                        energy spikes that violate the natural 1/f² power-law of physical camera lenses.
+                    </p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🔍</div>
+                    <h4>Error Level Analysis (ELA)</h4>
+                    <p>
+                        Photos from digital cameras show uniform JPEG compression degradation across similar surfaces.
+                        AI-rendered images often exhibit stark compression discontinuities between heavily smoothed
+                        backgrounds and hyper-detailed features.
+                    </p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🔬</div>
+                    <h4>Sensor PRNU & Noise Residuals</h4>
+                    <p>
+                        Physical cameras possess Photo-Response Non-Uniformity (PRNU) sensor fingerprints and photon
+                        shot noise. Generative AI denoises images towards zero Gaussian variance, producing unnatural
+                        kurtosis and synthetic micro-gradients.
+                    </p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🏷️</div>
+                    <h4>Metadata & EXIF Verification</h4>
+                    <p>
+                        Scans PNG chunks and EXIF tables for prompt parameters (e.g. CFG scale, sampler, ComfyUI workflows),
+                        while cross-checking physical camera lens metadata (shutter speed, ISO, aperture) for authenticity.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>SpectraForensic AI Image Detector • Built for Machine Learning & Digital Media Forensics</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
